@@ -5,12 +5,14 @@
 #board ul {
   display: flex;
   flex-wrap: wrap;
+  width: 50%;
 }
 
 #board ul > li {
   width: 10%;
   margin: 0;
   display: block;
+  border: 1px solid #f7f7f7;
 }
 
 #board ul > li::after {
