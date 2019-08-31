@@ -1,3 +1,25 @@
 /* This file is for your main application css. */
 
 @import "./phoenix.css";
+
+#board ul {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#board ul > li {
+  width: 10%;
+  margin: 0;
+  display: block;
+}
+
+#board ul > li::after {
+  content: '';
+  display: block;
+  width: 100%;
+  padding-top: 100%;
+}
+
+#board ul > li.snake {
+  background: #333;
+}

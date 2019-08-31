@@ -12,7 +12,9 @@ config :snake, SnakeWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "jeeYrMz4lasI0LqnwArv58V4UQvef0qOofyoyDna7bA3/Z4pz71nfI9TbNgNNtKt",
   render_errors: [view: SnakeWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Snake.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: Snake.PubSub, adapter: Phoenix.PubSub.PG2],
+  live_view: [signing_salt: "ElS6VY0gaLG1sn5bTF/YRGGFTSCtKzaI"],
+  template_engines: [leex: Phoenix.LiveView.Engine]
 
 # Configures Elixir's Logger
 config :logger, :console,
