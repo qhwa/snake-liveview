@@ -27,7 +27,11 @@ defmodule Snake.Game do
   end
 
   def handle_call(:update, _from, game) do
-    game = Map.update!(game, :t, &(&1 + 1))
+    game =
+      game
+      |> Map.update!(:t, &(&1 + 1))
+      |> Map.put(:started, true)
+
     {:reply, game, game}
   end
 

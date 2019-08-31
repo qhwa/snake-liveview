@@ -3,8 +3,13 @@ defmodule SnakeWeb.LiveGame do
 
   def render(assigns) do
     ~L"""
+    <%= unless @game.started do %>
+      <header>
+        <button phx-click="start">start</button>
+      </header>
+    <% end %>
+
     Hello world! <%= @game.t %>
-    <button phx-click="start">start<button>
     """
   end
 
@@ -23,6 +28,6 @@ defmodule SnakeWeb.LiveGame do
 
   def handle_event("start", _params, socket) do
     :timer.send_interval(1000, self(), :update)
-    {:noreply, socket}
+    handle_info(:update, socket)
   end
 end
