@@ -8,11 +8,20 @@ defmodule SnakeWeb.LiveGame do
     </header>
     <ul phx-keyup="turn" phx-target="window">
       <%= for x <- 1..@game.screen_width, y <- 1..@game.screen_height do %>
-        <%= if Enum.member?(@game.snake_tiles, {y - 1, x - 1}) do %>
+        <% tile = @game.tiles |> Enum.at(x - 1) |> Enum.at(y - 1) %>
+
+        <%= if tile == :apple do %>
+          <li class="apple"></li>
+        <% end %>
+
+        <%= if tile == :snake do %>
           <li class="snake"></li>
-        <% else %>
+        <% end %>
+
+        <%= if is_nil(tile) do %>
           <li></li>
         <% end %>
+
       <% end %>
     </ul>
     """

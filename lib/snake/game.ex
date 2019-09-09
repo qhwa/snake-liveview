@@ -4,9 +4,11 @@ defmodule Snake.Game do
     game_over: false,
     t: 0,
     direction: {0, 0},
-    snake_tiles: [{5, 5}, {6, 5}, {7, 5}, {7, 6}],
+    snake: [{5, 5}],
     screen_width: 10,
-    screen_height: 10
+    screen_height: 10,
+    apple: [],
+    tiles: []
 
   # Snake game board
 
@@ -30,7 +32,7 @@ defmodule Snake.Game do
   end
 
   def init(_) do
-    {:ok, %__MODULE__{}}
+    {:ok, %__MODULE__{} |> gen_apple() |> gen_tiles()}
   end
 
   def handle_call(:state, _from, game) do
@@ -71,6 +73,8 @@ defmodule Snake.Game do
     game
     |> Map.update!(:t, &(&1 + 1))
     |> move()
+    |> eat()
+    |> gen_tiles()
   end
 
   def move(%{direction: {0, 0}} = game) do
@@ -79,16 +83,23 @@ defmodule Snake.Game do
 
   def move(game) do
     {dx, dy} = game.direction
-    [{x, y} | tail] = game.snake_tiles
+    [{x, y} | tail] = game.snake
 
-    tiles = [{
-      within(x + dx, game.screen_width),
-      within(y + dy, game.screen_height)
-    }] ++ [{x, y}] ++ (tail |> Enum.drop(-1))
+    tiles = [next_pos(game)] ++ [{x, y}] ++ (tail |> Enum.drop(-1))
 
     game
-    |> Map.put(:snake_tiles, tiles)
+    |> Map.put(:snake, tiles)
     |> Map.put(:started, true)
+  end
+
+  defp next_pos(game) do
+    [{x, y} | _] = game.snake
+    {dx, dy} = game.direction
+
+    {
+      within(x + dx, game.screen_width),
+      within(y + dy, game.screen_height)
+    }
   end
 
   defp within(pos, max) do
@@ -97,6 +108,60 @@ defmodule Snake.Game do
       pos >= max -> pos - max
       true -> pos
     end
+  end
+
+  def eat(%{snake: snake, apple: apple} = game) do
+    next = next_pos(game)
+
+    if Enum.member?(apple, next) do
+      snake = [next] ++ snake
+
+      game
+      |> Map.put(:snake, snake)
+      |> gen_apple()
+    else
+      game
+    end
+  end
+
+  defp gen_apple(%{snake: snake, apple: apple, screen_width: w, screen_height: h} = game) do
+    game
+    |> Map.put(:apple, [next_apple_pos(w, h, snake ++ apple)])
+  end
+
+  defp next_apple_pos(w, h, taken) do
+    pos = {
+      Enum.random(0..(w - 1)),
+      Enum.random(0..(h - 1))
+    }
+
+    if Enum.member?(taken, pos) do
+      next_apple_pos(w, h, taken)
+    else
+      pos
+    end
+  end
+
+
+  defp gen_tiles(%{snake: snake, apple: apple, screen_width: w, screen_height: h} = game) do
+    tiles =
+      (0..(h - 1))
+      |> Enum.map(fn y ->
+        (0..(w - 1))
+        |> Enum.map(fn x ->
+          cond do
+            Enum.member?(apple, {x, y}) ->
+              :apple
+            Enum.member?(snake, {x, y}) ->
+              :snake
+            true ->
+              :nil
+          end
+        end)
+      end)
+
+    game
+    |> Map.put(:tiles, tiles)
   end
 
 end

@@ -25,3 +25,7 @@
 #board ul > li.snake {
   background: #333;
 }
+
+#board ul > li.apple {
+  background: #f00;
+}
