@@ -31,6 +31,11 @@ defmodule Snake.Game do
     GenServer.call(pid, :update)
   end
 
+  def stop_game(pid) do
+    Logger.debug("stopping game #{inspect pid}")
+    GenServer.stop(pid, :shutdown)
+  end
+
   def init(_) do
     {:ok, %__MODULE__{} |> gen_apple() |> gen_tiles()}
   end

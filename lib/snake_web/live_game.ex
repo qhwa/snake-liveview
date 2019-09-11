@@ -37,6 +37,10 @@ defmodule SnakeWeb.LiveGame do
     {:ok, socket |> assign(:game_pid, pid) |> assign(:game, game)}
   end
 
+  def terminate(reason, socket) do
+    Snake.Game.stop_game(socket.assigns.game_pid)
+  end
+
   def handle_info(:update, socket) do
     pid = socket.assigns.game_pid
     game = Snake.Game.update(pid)
