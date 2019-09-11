@@ -77,7 +77,6 @@ defmodule Snake.Game do
 
     game
     |> Map.update!(:t, &(&1 + 1))
-    |> move()
     |> eat()
     |> gen_tiles()
   end
@@ -90,7 +89,7 @@ defmodule Snake.Game do
     {dx, dy} = game.direction
     [{x, y} | tail] = game.snake
 
-    tiles = [next_pos(game)] ++ [{x, y}] ++ (tail |> Enum.drop(-1))
+    tiles = [next_pos(game)] ++ (game.snake |> Enum.drop(-1))
 
     game
     |> Map.put(:snake, tiles)
@@ -126,6 +125,7 @@ defmodule Snake.Game do
       |> gen_apple()
     else
       game
+      |> move()
     end
   end
 
