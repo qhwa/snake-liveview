@@ -5,22 +5,25 @@ defmodule SnakeWeb.LiveGame do
     ~L"""
     <header>
       <%= @game.snake |> length %>
-      <%= if @game.game_over, do: "Game Over" %>
+      <%= if @game.game_over, do: "Game Over, You #{if @game.win, do: "Win!", else: "Lose!"}" %>
     </header>
+
+    <% w = "#{floor(100 / @game.screen_width)}%" %>
+
     <ul phx-keyup="turn" phx-target="window">
       <%= for x <- 1..@game.screen_width, y <- 1..@game.screen_height do %>
         <% tile = @game.tiles |> Enum.at(x - 1) |> Enum.at(y - 1) %>
 
         <%= if tile == :apple do %>
-          <li class="apple"></li>
+          <li class="apple" style="width: <%= w %>"></li>
         <% end %>
 
         <%= if tile == :snake do %>
-          <li class="snake"></li>
+          <li class="snake" style="width: <%= w %>"></li>
         <% end %>
 
         <%= if is_nil(tile) do %>
-          <li></li>
+          <li style="width: <%= w %>"></li>
         <% end %>
 
       <% end %>

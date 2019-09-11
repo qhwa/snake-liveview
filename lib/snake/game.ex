@@ -1,12 +1,15 @@
 defmodule Snake.Game do
 
+  @size 10
+
   defstruct started: false,
     game_over: false,
+    win: false,
     t: 0,
     direction: {0, 0},
-    snake: [{5, 5}],
-    screen_width: 10,
-    screen_height: 10,
+    snake: [{ceil(@size / 2), ceil(@size / 2)}],
+    screen_width: @size,
+    screen_height: @size,
     apple: [],
     tiles: []
 
@@ -73,7 +76,6 @@ defmodule Snake.Game do
 
   def tick(game) do
     Logger.debug("tick, #{game.t}")
-    # Process.send_after(self(), :tick, 1000)
 
     game
     |> Map.update!(:t, &(&1 + 1))
@@ -134,8 +136,15 @@ defmodule Snake.Game do
   end
 
   defp gen_apple(%{snake: snake, apple: apple, screen_width: w, screen_height: h} = game) do
-    game
-    |> Map.put(:apple, [next_apple_pos(w, h, snake ++ apple)])
+    if length(snake) == w * h do
+      game
+      |> Map.put(:game_over, true)
+      |> Map.put(:win, true)
+      |> Map.put(:apple, [])
+    else
+      game
+      |> Map.put(:apple, [next_apple_pos(w, h, snake ++ apple)])
+    end
   end
 
   defp next_apple_pos(w, h, taken) do
