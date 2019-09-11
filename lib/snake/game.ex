@@ -86,14 +86,18 @@ defmodule Snake.Game do
   end
 
   def move(game) do
-    {dx, dy} = game.direction
-    [{x, y} | tail] = game.snake
+    next = next_pos(game)
 
-    tiles = [next_pos(game)] ++ (game.snake |> Enum.drop(-1))
+    cond do
+      Enum.member?(game.snake, next) ->
+        game
+        |> Map.put(:game_over, true)
 
-    game
-    |> Map.put(:snake, tiles)
-    |> Map.put(:started, true)
+      true ->
+        game
+        |> Map.put(:snake, [next] ++ (game.snake |> Enum.drop(-1)))
+        |> Map.put(:started, true)
+    end
   end
 
   defp next_pos(game) do

@@ -4,7 +4,8 @@ defmodule SnakeWeb.LiveGame do
   def render(assigns) do
     ~L"""
     <header>
-      <%= inspect @game.direction %>
+      <%= @game.snake |> length %>
+      <%= if @game.game_over, do: "Game Over" %>
     </header>
     <ul phx-keyup="turn" phx-target="window">
       <%= for x <- 1..@game.screen_width, y <- 1..@game.screen_height do %>
@@ -29,7 +30,7 @@ defmodule SnakeWeb.LiveGame do
 
   def mount(_, socket) do
     if connected?(socket) do
-      :timer.send_interval(1000, self(), :update)
+      :timer.send_after(1000, self(), :update)
     end
 
     {:ok, pid} = Snake.Game.start_link([])
@@ -44,6 +45,10 @@ defmodule SnakeWeb.LiveGame do
   def handle_info(:update, socket) do
     pid = socket.assigns.game_pid
     game = Snake.Game.update(pid)
+
+    unless game.game_over do
+      :timer.send_after(1000, self(), :update)
+    end
 
     {:noreply, socket |> assign(:game, game)}
   end
