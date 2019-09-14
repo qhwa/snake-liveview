@@ -1,7 +1,14 @@
 defmodule SnakeWeb.LiveGame do
   use Phoenix.LiveView
+  require Logger
 
-  def render(assigns) do
+  def render(%{game: nil} = assigns) do
+    ~L"""
+    <button phx-click="start">start</button>
+    """
+  end
+
+  def render(%{game: %Snake.Game{}} = assigns) do
     ~L"""
     <header>
       <%= @game.snake |> length %>
@@ -32,28 +39,37 @@ defmodule SnakeWeb.LiveGame do
   end
 
   def mount(_, socket) do
-    if connected?(socket) do
-      :timer.send_after(1000, self(), :update)
-    end
-
-    {:ok, pid} = Snake.Game.start_link([])
-    game = Snake.Game.state(pid)
-    {:ok, socket |> assign(:game_pid, pid) |> assign(:game, game)}
+    {:ok, socket |> assign(:game, nil)}
   end
 
   def terminate(reason, socket) do
-    Snake.Game.stop_game(socket.assigns.game_pid)
+    game = socket.assigns[:game]
+    if game do
+      Snake.Game.stop_game(game)
+    end
   end
 
   def handle_info(:update, socket) do
-    pid = socket.assigns.game_pid
-    game = Snake.Game.update(pid)
+    game =
+      socket.assigns[:game]
+      |> Snake.Game.update()
 
     unless game.game_over do
       :timer.send_after(1000, self(), :update)
     end
 
     {:noreply, socket |> assign(:game, game)}
+  end
+
+  def handle_event("start", _, socket) do
+    {:ok, game} = Snake.Game.start_game([])
+    socket =
+      socket
+      |> assign(:game, game)
+
+    handle_info(:update, socket)
+
+    {:noreply, socket}
   end
 
   @left_key 37
@@ -64,8 +80,10 @@ defmodule SnakeWeb.LiveGame do
   @arrows [@left_key, @up_key, @right_key, @down_key]
 
   def handle_event("turn", %{"keyCode" => key}, socket) when key in @arrows do
-    pid = socket.assigns.game_pid
-    game = Snake.Game.go(pid, dir(key))
+    game =
+      socket.assigns[:game]
+      |> Snake.Game.go(dir(key))
+
     {:noreply, socket |> assign(:game, game)}
   end
 

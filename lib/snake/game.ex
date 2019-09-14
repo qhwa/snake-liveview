@@ -3,6 +3,7 @@ defmodule Snake.Game do
   @size 10
 
   defstruct started: false,
+    pid: nil,
     game_over: false,
     win: false,
     t: 0,
@@ -18,16 +19,33 @@ defmodule Snake.Game do
   use GenServer
   require Logger
 
+  def start_game(args) do
+    {:ok, pid} = start_link(args)
+    {:ok, state(pid)}
+  end
+
   def start_link(_args) do
     GenServer.start(__MODULE__, [])
+  end
+
+  def state(%__MODULE__{pid: pid}) do
+    state(pid)
   end
 
   def state(pid) do
     GenServer.call(pid, :state)
   end
 
+  def go(%__MODULE__{pid: pid}, dir) do
+    go(pid, dir)
+  end
+
   def go(pid, dir) do
     GenServer.call(pid, {:go, dir})
+  end
+
+  def update(%__MODULE__{pid: pid}) do
+    update(pid)
   end
 
   def update(pid) do
@@ -40,7 +58,14 @@ defmodule Snake.Game do
   end
 
   def init(_) do
-    {:ok, %__MODULE__{} |> gen_apple() |> gen_tiles()}
+    Logger.debug("init game")
+    game = 
+      %__MODULE__{}
+      |> gen_apple()
+      |> gen_tiles()
+      |> Map.put(:pid, self())
+
+    {:ok, game}
   end
 
   def handle_call(:state, _from, game) do
@@ -120,6 +145,10 @@ defmodule Snake.Game do
     end
   end
 
+  def eat(%{direction: {0, 0}} = game) do
+    game
+  end
+
   def eat(%{snake: snake, apple: apple} = game) do
     next = next_pos(game)
 
@@ -136,6 +165,8 @@ defmodule Snake.Game do
   end
 
   defp gen_apple(%{snake: snake, apple: apple, screen_width: w, screen_height: h} = game) do
+    Logger.debug("gen_apple")
+
     if length(snake) == w * h do
       game
       |> Map.put(:game_over, true)
@@ -161,7 +192,7 @@ defmodule Snake.Game do
   end
 
 
-  defp gen_tiles(%{snake: snake, apple: apple, screen_width: w, screen_height: h} = game) do
+  def gen_tiles(%{snake: snake, apple: apple, screen_width: w, screen_height: h} = game) do
     tiles =
       (0..(h - 1))
       |> Enum.map(fn y ->
