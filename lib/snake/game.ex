@@ -21,6 +21,7 @@ defmodule Snake.Game do
 
   use GenServer
   require Logger
+  import Enum, only: [member?: 2, drop: 2, random: 1]
 
   @doc """
   Start a new snake game.
@@ -131,12 +132,12 @@ defmodule Snake.Game do
   def move(game) do
     next = next_pos(game)
 
-    if Enum.member?(game.snake, next) do
+    if member?(game.snake, next) do
       game
       |> Map.put(:game_over, true)
     else
       game
-      |> Map.put(:snake, [next] ++ (game.snake |> Enum.drop(-1)))
+      |> Map.put(:snake, [next] ++ (game.snake |> drop(-1)))
     end
   end
 
@@ -165,7 +166,7 @@ defmodule Snake.Game do
   def move_and_eat(%{snake: snake, apple: apple} = game) do
     next = next_pos(game)
 
-    if Enum.member?(apple, next) do
+    if member?(apple, next) do
       snake = [next] ++ snake
 
       game
@@ -191,11 +192,11 @@ defmodule Snake.Game do
 
   defp next_apple_pos(w, h, taken) do
     pos = {
-      Enum.random(0..(w - 1)),
-      Enum.random(0..(h - 1))
+      random(0..(w - 1)),
+      random(0..(h - 1))
     }
 
-    if Enum.member?(taken, pos) do
+    if member?(taken, pos) do
       next_apple_pos(w, h, taken)
     else
       pos
@@ -206,10 +207,10 @@ defmodule Snake.Game do
     tiles =
       for x <- 0..(w - 1), y <- 0..(h - 1) do
         cond do
-          Enum.member?(apple, {y, x}) ->
+          member?(apple, {y, x}) ->
             :apple
 
-          Enum.member?(snake, {y, x}) ->
+          member?(snake, {y, x}) ->
             :snake
 
           true ->
