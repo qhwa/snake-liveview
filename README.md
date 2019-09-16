@@ -1,4 +1,6 @@
-# Snake
+# Snake (LiveView)
+
+This is a exercise project for [Phoenix](https://phoenixframework.org/) [LiveView](https://github.com/phoenixframework/phoenix_live_view).
 
 To start your Phoenix server:
 
@@ -6,14 +8,9 @@ To start your Phoenix server:
   * Install Node.js dependencies with `cd assets && npm install`
   * Start Phoenix endpoint with `mix phx.server`
 
+## Screenshot
+
+![demo](https://user-images.githubusercontent.com/43009/64930945-7fde0a80-d867-11e9-9a87-a12dfa5894ae.png)
+
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
-
-## Learn more
-
-  * Official website: http://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix

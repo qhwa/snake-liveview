@@ -1,6 +1,8 @@
 defmodule SnakeWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :snake
 
+  socket "/live", Phoenix.LiveView.Socket
+
   socket "/socket", SnakeWeb.UserSocket,
     websocket: true,
     longpoll: false
