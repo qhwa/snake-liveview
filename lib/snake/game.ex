@@ -1,4 +1,8 @@
 defmodule Snake.Game do
+  @moduledoc """
+  This module holds the core game logics.
+  """
+
   @size 10
 
   defstruct started: false,
@@ -18,6 +22,9 @@ defmodule Snake.Game do
   use GenServer
   require Logger
 
+  @doc """
+  Start a new snake game.
+  """
   def start_game(args) do
     {:ok, pid} = start_link(args)
     {:ok, state(pid)}
@@ -51,14 +58,12 @@ defmodule Snake.Game do
     GenServer.call(pid, :update)
   end
 
-  def stop_game(pid) do
+  def stop_game(%{pid: pid}) do
     Logger.debug("stopping game #{inspect(pid)}")
     GenServer.stop(pid, :shutdown)
   end
 
   def init(_) do
-    Logger.debug("init game")
-
     game =
       %__MODULE__{}
       |> gen_apple()
@@ -92,7 +97,7 @@ defmodule Snake.Game do
   def start(%{started: true} = game), do: game
 
   def start(game) do
-    Logger.info("Game started")
+    Logger.debug("Game started, #{inspect game.pid}")
 
     game
     |> Map.put(:started, true)
@@ -100,8 +105,6 @@ defmodule Snake.Game do
   end
 
   def tick(game) do
-    Logger.debug("tick, #{game.t}")
-
     game
     |> Map.update!(:t, &(&1 + 1))
     |> move_and_eat()
@@ -115,15 +118,14 @@ defmodule Snake.Game do
   def move(game) do
     next = next_pos(game)
 
-    cond do
-      Enum.member?(game.snake, next) ->
-        game
-        |> Map.put(:game_over, true)
+    if Enum.member?(game.snake, next) do
+      game
+      |> Map.put(:game_over, true)
 
-      true ->
-        game
-        |> Map.put(:snake, [next] ++ (game.snake |> Enum.drop(-1)))
-        |> Map.put(:started, true)
+    else
+      game
+      |> Map.put(:snake, [next] ++ (game.snake |> Enum.drop(-1)))
+      |> Map.put(:started, true)
     end
   end
 
@@ -190,23 +192,27 @@ defmodule Snake.Game do
   end
 
   def gen_tiles(%{snake: snake, apple: apple, screen_width: w, screen_height: h} = game) do
+    gen_columns = fn x, y ->
+      cond do
+        Enum.member?(apple, {x, y}) ->
+          :apple
+
+        Enum.member?(snake, {x, y}) ->
+          :snake
+
+        true ->
+          nil
+      end
+    end
+
+    gen_rows = fn y ->
+      0..(w - 1)
+      |> Enum.map(&(gen_columns.(&1, y)))
+    end
+
     tiles =
       0..(h - 1)
-      |> Enum.map(fn y ->
-        0..(w - 1)
-        |> Enum.map(fn x ->
-          cond do
-            Enum.member?(apple, {x, y}) ->
-              :apple
-
-            Enum.member?(snake, {x, y}) ->
-              :snake
-
-            true ->
-              nil
-          end
-        end)
-      end)
+      |> Enum.map(gen_rows)
 
     game
     |> Map.put(:tiles, tiles)

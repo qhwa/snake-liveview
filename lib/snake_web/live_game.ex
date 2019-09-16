@@ -1,6 +1,9 @@
 defmodule SnakeWeb.LiveGame do
+  @moduledoc """
+  This module is the LiveView server for the game.
+  """
+
   use Phoenix.LiveView
-  require Logger
 
   def render(%{game: nil} = assigns) do
     ~L"""
