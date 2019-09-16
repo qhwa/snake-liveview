@@ -82,12 +82,14 @@ defmodule SnakeWeb.LiveGame do
   @right_key 39
   @down_key 40
 
-  @arrows [@left_key, @up_key, @right_key, @down_key]
+  @keys [@left_key, @up_key, @right_key, @down_key]
 
-  def handle_event("turn", %{"keyCode" => key}, socket) when key in @arrows do
+  def handle_event("turn", %{"keyCode" => key}, socket) when key in @keys do
+    direction = dir(key)
+
     game =
       socket.assigns[:game]
-      |> Snake.Game.go(dir(key))
+      |> Snake.Game.turn(direction)
 
     {:noreply, socket |> assign(:game, game)}
   end

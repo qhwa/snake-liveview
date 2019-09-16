@@ -30,10 +30,14 @@ defmodule Snake.Game do
     {:ok, state(pid)}
   end
 
+  @doc false
   def start_link(_args) do
     GenServer.start(__MODULE__, [])
   end
 
+  @doc """
+  Get current state of the game
+  """
   def state(%__MODULE__{pid: pid}) do
     state(pid)
   end
@@ -42,12 +46,15 @@ defmodule Snake.Game do
     GenServer.call(pid, :state)
   end
 
-  def go(%__MODULE__{pid: pid}, dir) do
-    go(pid, dir)
+  @doc """
+  Change direction.
+  """
+  def turn(%__MODULE__{pid: pid}, dir) do
+    turn(pid, dir)
   end
 
-  def go(pid, dir) do
-    GenServer.call(pid, {:go, dir})
+  def turn(pid, dir) do
+    GenServer.call(pid, {:turn, dir})
   end
 
   def update(%__MODULE__{pid: pid}) do
@@ -85,7 +92,7 @@ defmodule Snake.Game do
     {:reply, game, game}
   end
 
-  def handle_call({:go, {dx, dy}}, _from, game) do
+  def handle_call({:turn, {dx, dy}}, _from, game) do
     game =
       game
       |> Map.put(:direction, {dx, dy})
