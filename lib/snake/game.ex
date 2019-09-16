@@ -57,6 +57,9 @@ defmodule Snake.Game do
     GenServer.call(pid, {:turn, dir})
   end
 
+  @doc """
+  Tick tick. Move ahead the snake.
+  """
   def update(%__MODULE__{pid: pid}) do
     update(pid)
   end
@@ -65,11 +68,15 @@ defmodule Snake.Game do
     GenServer.call(pid, :update)
   end
 
+  @doc """
+  Terminate the game
+  """
   def stop_game(%{pid: pid}) do
     Logger.debug("stopping game #{inspect(pid)}")
     GenServer.stop(pid, :shutdown)
   end
 
+  @doc false
   def init(_) do
     game =
       %__MODULE__{}
@@ -80,6 +87,7 @@ defmodule Snake.Game do
     {:ok, game}
   end
 
+  @doc false
   def handle_call(:state, _from, game) do
     {:reply, game, game}
   end
@@ -118,9 +126,7 @@ defmodule Snake.Game do
     |> gen_tiles()
   end
 
-  def move(%{direction: {0, 0}} = game) do
-    game
-  end
+  def move(%{direction: {0, 0}} = game), do: game
 
   def move(game) do
     next = next_pos(game)
@@ -132,11 +138,10 @@ defmodule Snake.Game do
     else
       game
       |> Map.put(:snake, [next] ++ (game.snake |> Enum.drop(-1)))
-      |> Map.put(:started, true)
     end
   end
 
-  defp next_pos(game) do
+  def next_pos(game) do
     [{x, y} | _] = game.snake
     {dx, dy} = game.direction
 
@@ -181,7 +186,7 @@ defmodule Snake.Game do
     end
   end
 
-  defp win?(%{snake: snake, screen_width: w, screen_height: h} = game) do
+  def win?(%{snake: snake, screen_width: w, screen_height: h} = game) do
     length(snake) == w * h
   end
 

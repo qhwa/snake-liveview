@@ -15,7 +15,9 @@ defmodule SnakeWeb.LiveGame do
     ~L"""
     <header>
       <%= @game.snake |> length %>
-      <%= if @game.game_over, do: "Game Over, You #{if @game.win, do: "Win!", else: "Lose!"}" %>
+      <%= if @game.game_over do %>
+        Game Over, You <%= if @game.win, do: "Win!", else: "Lose!" %>
+      <% end %>
     </header>
 
     <% w = "#{floor(100 / @game.screen_width)}%" %>
