@@ -112,7 +112,7 @@ defmodule Snake.Game do
   def start(%{started: true} = game), do: game
 
   def start(game) do
-    Logger.debug("Game started, #{inspect game.pid}")
+    Logger.debug("Game started, #{inspect(game.pid)}")
 
     game
     |> Map.put(:started, true)
@@ -134,7 +134,6 @@ defmodule Snake.Game do
     if Enum.member?(game.snake, next) do
       game
       |> Map.put(:game_over, true)
-
     else
       game
       |> Map.put(:snake, [next] ++ (game.snake |> Enum.drop(-1)))
@@ -204,29 +203,24 @@ defmodule Snake.Game do
   end
 
   def gen_tiles(%{snake: snake, apple: apple, screen_width: w, screen_height: h} = game) do
-    gen_columns = fn x, y ->
-      cond do
-        Enum.member?(apple, {x, y}) ->
-          :apple
+    tiles =
+      for x <- 0..(w - 1), y <- 0..(h - 1) do
+        cond do
+          Enum.member?(apple, {y, x}) ->
+            :apple
 
-        Enum.member?(snake, {x, y}) ->
-          :snake
+          Enum.member?(snake, {y, x}) ->
+            :snake
 
-        true ->
-          nil
+          true ->
+            nil
+        end
       end
-    end
-
-    gen_rows = fn y ->
-      0..(w - 1)
-      |> Enum.map(&(gen_columns.(&1, y)))
-    end
 
     tiles =
-      0..(h - 1)
-      |> Enum.map(gen_rows)
+      tiles
+      |> Enum.chunk_every(w)
 
-    game
-    |> Map.put(:tiles, tiles)
+    Map.put(game, :tiles, tiles)
   end
 end
