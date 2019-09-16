@@ -44,6 +44,7 @@ defmodule SnakeWeb.LiveGame do
 
   def terminate(reason, socket) do
     game = socket.assigns[:game]
+
     if game do
       Snake.Game.stop_game(game)
     end
@@ -63,6 +64,7 @@ defmodule SnakeWeb.LiveGame do
 
   def handle_event("start", _, socket) do
     {:ok, game} = Snake.Game.start_game([])
+
     socket =
       socket
       |> assign(:game, game)
