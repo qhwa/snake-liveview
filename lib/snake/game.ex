@@ -186,7 +186,7 @@ defmodule Snake.Game do
     end
   end
 
-  def win?(%{snake: snake, screen_width: w, screen_height: h} = game) do
+  def win?(%{snake: snake, screen_width: w, screen_height: h}) do
     length(snake) == w * h
   end
 
